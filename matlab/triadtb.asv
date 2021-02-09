@@ -17,12 +17,13 @@ cycles = 6; % num. cycles to show of lower frequency
 %% Create interval coefficients for 12 tone chroma: JUST and EQUAL temperament
 tempertable = zeros(2,12);
 tempertable(1,:) = [16/15, 9/8, 6/5, 5/4, 4/3, 7/5, 3/2, 8/5, 5/3, 9/5, 15/8, 2];
-for jj = 1:12
-    tempertable(2,jj) = 2^(jj/12);
+for i = 1:12
+    tempertable(2,i) = 2^(i/12);
 end
 partials_all = partials+1;
 
 % generate spectra
+
 for ii = 1:numel(intervals)+1
     notes(ii).freq = zeros(1,partials_all);
     notes(ii).ampl = zeros(1,partials_all);
@@ -37,11 +38,13 @@ for ii = 1:numel(intervals)+1
     end
 
     % calculate harmonics, amplitudes
-    for jj = 1:partials_all
-        notes(ii).freq(jj) = jj*notes(ii).freq(1);
-        notes(ii).ampl(jj) = 10^( ...
-            (-rolloff*log2(notes(ii).freq(jj)/notes(ii).freq(1))) ...
-            /20);
+    for  = 1:partials_all
+        n1_freq(i) = i*n1_freq(1);
+        n2_freq(i) = i*n2_freq(1);
+        n3_freq(i) = i*n3_freq(1);
+        n1_ampl(i) = 10^((-rolloff*log2(n1_freq(i)/n1_freq(1)))/20);
+        n2_ampl(i) = 10^((-rolloff*log2(n2_freq(i)/n2_freq(1)))/20);
+        n3_ampl(i) = 10^((-rolloff*log2(n3_freq(i)/n3_freq(1)))/20);
     end
 end
 %% plot spectra
@@ -50,34 +53,34 @@ fig.Name = 'Spectra';
 axis1 = zeros(4,1);
 
 subplot(4,1,1);
-prop = stem(notes(1).freq, notes(1).ampl);
+prop = stem(n1_freq, n1_ampl);
 prop.Color = [0 .447 .741];
 prop.Marker = '.'; prop.MarkerSize = 10;
-title(['Tone 1: f_0= ',num2str(notes(1).freq(1)),' Hz']);
+title(['Tone 1: f_0= ',num2str(n1_freq(1)),' Hz']);
 ax = gca;
 axis1(1) = ax; % save edited axis handle to use when linking subsequent handles
 
 subplot(4,1,2);
-prop = stem(notes(2).freq, notes(2).ampl);
+prop = stem(n2_freq, n2_ampl);
 prop.Color = [.8 .5 .3];
 prop.Marker = '.'; prop.MarkerSize = 10;
-title(['Tone 2: f_0= ',num2str(notes(2).freq(1)),' Hz']);
+title(['Tone 2: f_0= ',num2str(n2_freq(1)),' Hz']);
 axis1(2) = gca;
 
 subplot(4,1,3);
-prop = stem(notes(3).freq, notes(3).ampl);
+prop = stem(n3_freq, n3_ampl);
 prop.Color = [.8 .3 .5];
 prop.Marker = '.'; prop.MarkerSize = 10;
-title(['Tone 3: f_0= ',num2str(notes(3).freq(1)),' Hz']);
+title(['Tone 3: f_0= ',num2str(n3_freq(1)),' Hz']);
 axis1(3) = gca;
 
 subplot(4,1,4); hold on;
 title('Tone 1 + Tone 2');
-prop = stem(notes(1).freq, notes(1).ampl, '.');
+prop = stem(n1_freq, n1_ampl, '.');
 prop.Color = [0 .447 .741]; prop.Marker = '.'; prop.MarkerSize = 10;
-prop = stem(notes(2).freq, notes(2).ampl, '.');
+prop = stem(n2_freq, n1_ampl, '.');
 prop.Color = [.8 .5 .3]; prop.Marker = '.'; prop.MarkerSize = 10;
-prop = stem(notes(3).freq, notes(3).ampl, '.');
+prop = stem(n3_freq, n3_ampl, '.');
 prop.Color = [.8 .3 .5]; prop.Marker = '.'; prop.MarkerSize = 10;
 axis1(4) = gca;
 
@@ -86,12 +89,12 @@ hlink = linkprop(axis1,{'Xscale','XLimMode','XLim','XGrid','YLim'});
 if fscale == 1
     ax.XScale = 'log';
     ax.XLimMode = 'manual';
-    ax.XLim = [10^floor(log10(notes(1).freq(1))), 10^ceil(log10(notes(3).freq(partials_all)))];
+    ax.XLim = [10^floor(log10(n1_freq(1))), 10^ceil(log10(n3_freq(partials_all)))];
 end
 if fscale == 2
     ax.XScale = 'linear';
     ax.XLimMode = 'manual';
-    ax.XLim = [floor(notes(1).freq(1)/100)*100, ceil(notes(3).freq(partials_all)/100)*100];
+    ax.XLim = [floor(n1_freq(1)/100)*100, ceil(n3_freq(partials_all)/100)*100];
 end 
 ax.YLim = [0, 1.25];
 ax.XGrid = 'on';
@@ -101,11 +104,11 @@ sound1 = zeros(time*Fs,1);
 sound2 = zeros(time*Fs,1);
 sound3 = zeros(time*Fs,1);
 soundint = zeros(time*Fs,1);
-for jj = 1:1:partials_all
+for i = 1:1:partials_all
     for j = 1:1:time*Fs
-        sound1(j) = sound1(j) + n1_ampl(jj)*sin(2*pi*n1_freq(jj)*j/Fs);
-        sound2(j) = sound2(j) + n1_ampl(jj)*sin(2*pi*n2_freq(jj)*j/Fs);
-        sound3(j) = sound3(j) + n1_ampl(jj)*sin(2*pi*n3_freq(jj)*j/Fs);
+        sound1(j) = sound1(j) + n1_ampl(i)*sin(2*pi*n1_freq(i)*j/Fs);
+        sound2(j) = sound2(j) + n1_ampl(i)*sin(2*pi*n2_freq(i)*j/Fs);
+        sound3(j) = sound3(j) + n1_ampl(i)*sin(2*pi*n3_freq(i)*j/Fs);
     end
 end
 soundall = sound1 + sound2 + sound3;
