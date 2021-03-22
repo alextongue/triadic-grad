@@ -6,7 +6,7 @@ using Printf
 f_start         = 100. # starting frequency (arb?)
 fres            = 10 # resolution per semitone
 frange          = 8 # semitone range
-harmonics       = 2 # how many harmonics to iterate over (after fundamental)
+harmonics       = 4 # how many harmonics to iterate over (after fundamental)
 harm_rolloff    = 3 # rolloff
 ctones          = 3 # triads (not working)
 
@@ -35,7 +35,7 @@ if harmonics > 1
     end
 end
 
-sort!(fgrid; dims=3)
+sort!(fgrid; dims=3);
 
 ##
 cookvalence(diff,e=1.558) = (2*diff/e).*exp.(-(diff.^4)/4)
@@ -47,14 +47,18 @@ for startpos = 1:(grid_depth-(ctones-1))
     for endpos = grid_depth:-1:startpos+2
         for midpos = (startpos+1):(endpos-1)
             fdiff = freq2semi(fgrid[:,:,startpos],fgrid[:,:,midpos]) .- freq2semi(fgrid[:,:,midpos],fgrid[:,:,endpos])
-            valences += cookvalence(fdiff)
-            tensions += cooktension(fdiff)
+            global valences += cookvalence(fdiff)
+            global tensions += cooktension(fdiff)
         end
     end
 end
 
 ##
-PyPlot.plot_surface(coord_semis,coord_semis,valences)
+fig1 = PyPlot.figure()
+PyPlot.plot_surface(coord_semis,coord_semis,valences, cmap="twilight_shifted")
+display(fig1)
 
 ##
-PyPlot.plot_surface(coord_semis,coord_semis,tensions)
+fig2 = PyPlot.figure()
+PyPlot.plot_surface(coord_semis,coord_semis,tensions, cmap="coolwarm")
+display(fig2)
